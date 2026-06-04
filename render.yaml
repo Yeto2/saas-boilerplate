@@ -1,0 +1,29 @@
+services:
+  # --- Backend (Fastify + Stripe webhooks, Docker) ---
+  - type: web
+    name: yeto2-saas-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health/live
+    envVars:
+      - key: CORS_ORIGINS
+        value: https://yeto2-saas-web.onrender.com
+      - key: JWT_SECRET
+        value: cec91b18071aa6b5c04dd6b4cf35b1561ac02e497e513d49fe912bf1e9dfc364
+      # Stripe is optional — left unset to run in self-contained dev mode.
+
+  # --- Frontend (Next.js, native Node) ---
+  - type: web
+    name: yeto2-saas-web
+    runtime: node
+    plan: free
+    rootDir: web
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://yeto2-saas-api.onrender.com
+      - key: NODE_VERSION
+        value: "22"
